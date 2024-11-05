@@ -31,7 +31,7 @@ The frontend is built using **Generative UI** combined with LLMs to drive an REA
 # Start the frontend server
 pnpm run dev
 ```
-For more information, please refer to the [README](./frontend/readme.md).
+For more information, please refer to the [README](./frontend/README.md).
 
 ###  2. Backend (Python Agents with Specialized LLMs)
 The backend is developed in Python, connecting multiple agentic workflows that rely on smaller LLMs for specific data tasks **(e.g., SQL query generation, visualization suggestions, insight summarization).** The backend handles all data-processing tasks, allowing efficient, context-aware interactions between the database and frontend.
