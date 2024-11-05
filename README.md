@@ -31,7 +31,7 @@ The frontend is built using **Generative UI** combined with LLMs to drive an REA
 # Start the frontend server
 pnpm run dev
 ```
-For more information, please refer to the [README](./frontend/reame.md).
+For more information, please refer to the [README](./frontend/readme.md).
 
 ###  2. Backend (Python Agents with Specialized LLMs)
 The backend is developed in Python, connecting multiple agentic workflows that rely on smaller LLMs for specific data tasks **(e.g., SQL query generation, visualization suggestions, insight summarization).** The backend handles all data-processing tasks, allowing efficient, context-aware interactions between the database and frontend.
@@ -72,3 +72,16 @@ We use **SQLite** for the database, which is lightweight and efficient for SQL-b
 - **Database Setup:** Ensure that the ChinookDB file (`Chinook_Sqlite.sqlite`) is located in the `sqlite/` folder. You will upload the database using our frontend
 
 ---
+
+## Contributing
+
+We welcome contributions! Please refer to the [Contributing Guidelines](./docs/contributing.md) for more information on how to get involved.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for more details.
+
+## Acknowledgments
+
+- Thank you to all contributors and collaborators who made this project possible.
+- Special thanks to the open-source community for their invaluable resources and support.
