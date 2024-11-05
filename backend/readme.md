@@ -1,35 +1,34 @@
-## Features
+# Backend Service
 
-- SQL query generation and validation
-- Query execution and result formatting
-- Visualization recommendation and data formatting
-- Streaming LangGraph state
+This backend service is designed to handle various tasks through two main agent workflows: the **SQL Agent** and the **Research Agent**. Each agent is responsible for specific functionalities and operations within the service.
 
-## Main Components
+## Agent Workflows
 
-### WorkflowManager
+### SQL Agent
 
-The `WorkflowManager` class is responsible for creating and managing the workflow of the SQL agent. It uses LangGraph's `StateGraph` to define the sequence of operations.
+The SQL Agent is responsible for managing database interactions, executing queries, and performing data manipulation tasks. It provides a robust interface for interacting with SQL databases and handling data retrieval and updates efficiently.
 
-Key methods:
+[Learn more about the SQL Agent Workflow](./my_agent/readme.md)
 
-- `create_workflow()`: Sets up the workflow graph with various nodes and edges.
-- `run_sql_agent()`: Executes the entire workflow for a given question.
+### Research Agent
 
-### SQLAgent
+The Research Agent is designed for conducting research tasks, gathering information, and processing data. It utilizes various sources and methods to provide insightful results and supports decision-making processes.
 
-The `SQLAgent` class (not shown in the provided code) likely contains the implementation of individual steps in the workflow, such as:
+[Learn more about the Research Agent Workflow](./research_canvas/readme.md)
 
-- Parsing questions
-- Generating SQL queries
-- Validating and fixing SQL
-- Executing SQL queries
-- Choosing visualizations
+## Getting Started
 
-### DataFormatter
+To set up the backend service, follow the instructions in the [Installation Guide](./docs/installation_guide.md).
 
-The `DataFormatter` class is responsible for formatting the data for the chosen visualization type.
+## Contributing
 
-Key methods:
+We welcome contributions! Please refer to the [Contributing Guidelines](./docs/contributing.md) for more information on how to get involved.
 
-- `format_data_for_visualization()`: Formats the data for the chosen visualization type.
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for more details.
+
+## Acknowledgments
+
+- Thank you to all contributors and collaborators who made this project possible.
+- Special thanks to the open-source community for their invaluable resources and support.
