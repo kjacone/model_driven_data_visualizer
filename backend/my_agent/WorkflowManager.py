@@ -1,17 +1,20 @@
 from langgraph.graph import StateGraph
-from my_agent.State import InputState, OutputState
+from my_agent.State import InputState
 from my_agent.SQLAgent import SQLAgent
 from my_agent.DataFormatter import DataFormatter
 from langgraph.graph import END
+from langgraph.checkpoint.memory import MemorySaver
 
 class WorkflowManager:
     def __init__(self):
         self.sql_agent = SQLAgent()
         self.data_formatter = DataFormatter()
+        self.memory = MemorySaver()
+        
 
     def create_workflow(self) -> StateGraph:
         """Create and configure the workflow graph."""
-        workflow = StateGraph(input=InputState, output=OutputState)
+        workflow = StateGraph(input=InputState, output=InputState)
 
         # Add nodes to the graph
         workflow.add_node("parse_question", self.sql_agent.parse_question)
@@ -38,15 +41,15 @@ class WorkflowManager:
         return workflow
     
     def returnGraph(self):
-        return self.create_workflow().compile()
+        return self.create_workflow().compile(checkpointer=self.memory)
 
-    def run_sql_agent(self, question: str, uuid: str) -> dict:
-        """Run the SQL agent workflow and return the formatted answer and visualization recommendation."""
-        app = self.create_workflow().compile()
-        result = app.invoke({"question": question, "uuid": uuid})
-        return {
-            "answer": result['answer'],
-            "visualization": result['visualization'],
-            "visualization_reason": result['visualization_reason'],
-            "formatted_data_for_visualization": result['formatted_data_for_visualization']
-        }
+    # def run_sql_agent(self, question: str, uuid: str) -> dict:
+    #     """Run the SQL agent workflow and return the formatted answer and visualization recommendation."""
+    #     app = self.create_workflow().compile()
+    #     result = app.invoke({"question": question, "uuid": uuid})
+    #     return {
+    #         "answer": result['answer'],
+    #         "visualization": result['visualization'],
+    #         "visualization_reason": result['visualization_reason'],
+    #         "formatted_data_for_visualization": result['formatted_data_for_visualization']
+    #     }

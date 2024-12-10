@@ -2,3 +2,10 @@ langchain
 python-dotenv
 langgraph
 langchain-openai
+copilotkit
+fastapi 
+uvicorn 
+dataclasses
+langchain_community
+deep_translator
+langdetect

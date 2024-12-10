@@ -5,7 +5,10 @@
     "."
   ],
   "graphs": {
-    "my_agent": "./my_agent/main.py:graph"
+    "my_agent": "./my_agent/main.py:graph",
+  
+    "gather_info":"./gather_info/main.py:graph",
+    "swe":"./swe/main.py:graph"
   },
   "env": ".env"
 }

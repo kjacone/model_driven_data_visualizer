@@ -14,6 +14,15 @@ body {
 
 @layer base {
   :root {
+    --emerald-50: #ecfdf5;
+    --emerald-100: #d1fae5;
+    --emerald-600: #059669;
+    --emerald-700: #047857;
+    --emerald-800: #065f46;
+    --emerald-900: #064e3b;
+    --slate-800: #1e293b;
+    --slate-900: #0f172a;
+
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;
@@ -49,6 +58,15 @@ body {
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
   .dark {
+    --emerald-50: #ecfdf5;
+    --emerald-100: #d1fae5;
+    --emerald-600: #059669;
+    --emerald-700: #047857;
+    --emerald-800: #065f46;
+    --emerald-900: #064e3b;
+    --slate-800: #1e293b;
+    --slate-900: #0f172a;
+
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
     --card: 0 0% 3.9%;
@@ -93,31 +111,40 @@ body {
   }
 }
 
+.copilotKitMessage {
+  background-color: var(--slate-800);
+  color: white;
+}
+
 .copilotKitMessage.copilotKitUserMessage {
   border-radius: 0.5rem 0.5rem 0 0.5rem;
+  background-color: var(--emerald-800);
 }
 
 .copilotKitMessage.copilotKitAssistantMessage {
   border-radius: 0.5rem 0.5rem 0.5rem 0;
+  background-color: var(--slate-800);
+  color: white;
 }
 
 .copilotKitMessage svg {
-  color: white !important;
-}
-
-.copilotKitChat {
-  background-color: #e0e9fd;
+  color: var(--emerald-100) !important;
 }
 
 .copilotKitResponseButton {
   background-color: transparent;
-  color: var(--copilot-kit-secondary-color);
+  color: var(--emerald-100);
   border: 0px;
+}
+
+.copilotKitResponseButton:hover {
+  background-color: var(--emerald-900);
+  /* shadow-emerald-500/20 */
 }
 
 .copilotKitInput {
   border-top: none;
-  background-color: white;
+  background-color: var(--slate-900);
   margin-bottom: 20px;
   margin-left: 30px;
   margin-right: 30px;
@@ -125,10 +152,31 @@ body {
 }
 
 .copilotKitInput > textarea {
-  background-color: white;
-  color: black;
+  background-color: var(--slate-900);
+  color: white;
+}
+
+.copilotKitMessages footer .suggestions .suggestion {
+  background: var(--emerald-600);
+  color: var(--copilot-kit-contrast-color);
 }
 
 .copilotKitInput > .copilotKitInputControls > button:not([disabled]) {
-  color: var(--copilot-kit-secondary-color);
+  color: var(--emerald-100);
+}
+
+.copilotKitInput > .copilotKitInputControls > button:not([disabled]):hover {
+  background-color: var(--emerald-900);
+}
+
+.copilotKitSidebar .copilotKitWindow {
+  bottom: 0;
+  right: 0;
+  top: auto;
+  left: auto;
+  width: 28rem;
+  min-height: 92%;
+  margin-bottom: 0;
+  max-height: none;
+  background-color: var(--slate-800);
 }

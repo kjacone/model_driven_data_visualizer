@@ -12,7 +12,8 @@ const llmAdapter = new OpenAIAdapter({ openai });
 const runtime = new CopilotRuntime({
   remoteActions: [
     {
-      url: process.env.REMOTE_ACTION_URL || "http://localhost:8000/visualisation",
+      url:
+        process.env.REMOTE_ACTION_URL || "http://localhost:8000/visualisation",
     },
   ],
 });

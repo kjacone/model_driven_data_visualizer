@@ -15,7 +15,7 @@ class DataFormatter:
         results = state['results']
         question = state['question']
         sql_query = state['sql_query']
-
+        print(f"Visualization: {visualization}")
         if visualization == "none":
             return {"formatted_data_for_visualization": None}
         
@@ -72,12 +72,12 @@ class DataFormatter:
 
             # Get a list of unique labels
             labels = list(set(item2 for item1, item2, item3 in results 
-                              if isinstance(item2, str) and not item2.replace(".", "").isdigit() and "/" not in item2))
+                            if isinstance(item2, str) and not item2.replace(".", "").isdigit() and "/" not in item2))
             
             # If labels are not in the second position, check the first position
             if not labels:
                 labels = list(set(item1 for item1, item2, item3 in results 
-                                  if isinstance(item1, str) and not item1.replace(".", "").isdigit() and "/" not in item1))
+                                if isinstance(item1, str) and not item1.replace(".", "").isdigit() and "/" not in item1))
 
             for item1, item2, item3 in results:
                 # Determine which item is the label (string not convertible to float and not containing "/")
@@ -200,10 +200,21 @@ class DataFormatter:
         return {"formatted_data_for_visualization": formatted_data}
 
     def _format_other_visualizations(self, visualization, question, sql_query, results):
-        instructions = graph_instructions[visualization]
+        # Trim whitespace from visualization key
+        visualization_input = ""
+        visualization_input = visualization.strip()
+        
+        # Log the visualization value for debugging
+        print(f"Debug: Visualization value received: '{visualization_input}'")
+
+        # Check if the visualization key exists in graph_instructions
+        if visualization_input not in graph_instructions:
+            raise ValueError(f"Invalid visualization type: '{visualization_input}'")
+
+        instructions = graph_instructions[visualization_input]
         prompt = ChatPromptTemplate.from_messages([
             ("system", "You are a Data expert who formats data according to the required needs. You are given the question asked by the user, it's sql query, the result of the query and the format you need to format it in."),
-            ("human", 'For the given question: {question}\n\nSQL query: {sql_query}\n\Result: {results}\n\nUse the following example to structure the data: {instructions}. Just give the json string. Do not format it'),
+            ("human", 'For the given question: {question}\n\nSQL query: {sql_query}\n\nResult: {results}\n\nUse the following example to structure the data: {instructions}. Just give the json string. Do not format it'),
         ])
         response = self.llm_manager.invoke(prompt, question=question, sql_query=sql_query, results=results, instructions=instructions)
             

@@ -1,0 +1,62 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  googleId      String?   @unique
+  githubId      String?   @unique
+  avatar        String?
+  createdAt     DateTime  @default(now())
+  tokenUsage    TokenUsage?
+  projects      Project[]
+}
+
+model TokenUsage {
+  id        String   @id @default(cuid())
+  used      Int      @default(0)
+  total     Int      @default(10000)
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Project {
+  id           String    @id @default(cuid())
+  name         String
+  status       String    // RUNNING, STOPPED, BUILDING, DRAFT, FAILED
+  runtime      String
+  version      String
+  createdAt    DateTime  @default(now())
+  lastDeployed DateTime?
+  userId       String
+  user         User      @relation(fields: [userId], references: [id])
+  actions      Action[]
+  history      History[]
+}
+
+model Action {
+  id          String   @id @default(cuid())
+  type        String   // CREATE, DEPLOY, etc.
+  description String
+  createdAt   DateTime @default(now())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+}
+
+model History {
+  id        String   @id @default(cuid())
+  event     String
+  metadata  Json?
+  createdAt DateTime @default(now())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id])
+}

@@ -19,6 +19,9 @@ import LoginForm from "@/registry/default/block/authentication-01";
 import Charts from "@/registry/new-york/block/chart-bar-active";
 import Dashboard from "@/registry/new-york/block/dashboard-07";
 import { SidebarTrigger } from "../ui/sidebar";
+import { useCoAgent } from "@copilotkit/react-core";
+import { AgentVisualization } from "@/lib/types";
+import { Progress } from "@/registry/new-york/ui/progress";
 
 
 
@@ -152,12 +155,27 @@ const tabsData = [
 
 
 export default function DashboardPage() {
-  return (
-    <>
-    {/* <SidebarTrigger /> */}
+
+  const { state, setState } = useCoAgent<AgentVisualization>({
+    name: "my_agent",
+
+    initialState: {
+      question: "",
+      uuid: "",
+      parsed_question: [],
+      unique_nouns: [],
+      sql_query: "",
+      results: [],
+      visualization: "",
+      visualization_reason:"",
+      logs: []
+    },
+  });
+
+  const renderDashboardContent = () => {
+    return (
       <div className="flex-col md:flex md:flex-shrink-0">
         <div className="flex-1 space-y-4 p-8 pt-1">
-
           <KPI kpis={kpis} />
           <Tabs defaultValue="overview" className="space-y-4">
             <TabsList>
@@ -169,15 +187,26 @@ export default function DashboardPage() {
             </TabsList>
             {tabsData.map((tab) => (
               <TabsContent key={tab.value} value={tab.value} className="space-y-4">
-              
                 {tab.content}
               </TabsContent>
             ))}
           </Tabs>
         </div>
       </div>
-    </>
-  );
+    );
+  };
+
+  if (state.visualization_reason) {
+    return <p>{state.visualization_reason}</p>;
+   
+  }else if(state.visualization_reason ==""){
+    return <p> Loading ...</p>
+  }else{
+   return renderDashboardContent();
+  }
 }
+
+
+
 
 

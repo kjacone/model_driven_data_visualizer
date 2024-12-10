@@ -9,33 +9,35 @@ from fastapi import FastAPI
 import uvicorn
 from copilotkit.integrations.fastapi import add_fastapi_endpoint
 from copilotkit import CopilotKitSDK, LangGraphAgent
-from research_canvas.main import graph 
-from my_agent.main import graph as graph2
+from swe.main import graph
+from gather_info.main import graph as graph3
 
 app = FastAPI()
-sdk = CopilotKitSDK(
-    agents=[
-        LangGraphAgent(
-            name="research_agent",
-            description="Research agent.",
-            agent=graph,
-        )
-    ],
-)
+
 
 sdk2 = CopilotKitSDK(
     agents=[
+        # LangGraphAgent(
+        #     name="my_agent",
+        #     description="Visualisation agent.",
+        #     agent=graph2,
+        # ),
         LangGraphAgent(
-            name="my_agent",
-            description="Visualisation agent.",
-            agent=graph2,
-        )
+            name="gather_info",
+            description="Info Gatherer agent.",
+            agent=graph3,
+        ),
+        LangGraphAgent(
+            name="swe",
+            description="SWE agent.",
+            agent=graph,
+        ),
     ],
 )
 
-add_fastapi_endpoint(app, sdk, "/copilotkit")
 
 add_fastapi_endpoint(app, sdk2, "/visualisation")
+
 
 # add new route for health check
 @app.get("/health")

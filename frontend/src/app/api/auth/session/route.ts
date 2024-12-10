@@ -1,0 +1,1 @@
+export { GET as GET } from "@/app/api/auth/[...nextauth]/route";

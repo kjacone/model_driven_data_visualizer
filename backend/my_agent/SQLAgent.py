@@ -2,13 +2,39 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from my_agent.DatabaseManager import DatabaseManager
 from my_agent.LLMManager import LLMManager
+from langchain_core.runnables import RunnableConfig
+from copilotkit.langchain import copilotkit_emit_state, copilotkit_customize_config,copilotkit_emit_message
+
+
+async def dont_emit_state(config: RunnableConfig, state: dict) -> None:
+    """Customize the config and emit the state."""
+    modifiedConfig = copilotkit_customize_config(
+        config,
+        emit_messages=False,
+    )
+    await copilotkit_emit_state(modifiedConfig, state)
+
+
+async def log_message(state: dict, message: str, done: bool = False) -> None:
+    """Log a message to the state with a done status."""
+    state["logs"] = state.get("logs", [])
+    state["logs"].append({
+        "message": message,
+        "done": done
+    })
 
 class SQLAgent:
     def __init__(self):
         self.db_manager = DatabaseManager()
         self.llm_manager = LLMManager()
 
-    def parse_question(self, state: dict) -> dict:
+    async def parse_question(self, state: dict, config: RunnableConfig) -> dict:
+        await dont_emit_state(config, state)
+
+        log_index = await self.log_message(state, "Parse user question and identify relevant tables and columns", done=False)
+        await copilotkit_emit_state(config, state)
+        
+
         """Parse user question and identify relevant tables and columns."""
         question = state['question']
         schema = self.db_manager.get_schema(state['uuid'])
@@ -21,6 +47,7 @@ If the question is not relevant to the database or if there is not enough inform
 Your response should be in the following JSON format:
 {{
     "is_relevant": boolean,
+             
     "relevant_tables": [
         {{
             "table_name": string,
@@ -39,9 +66,19 @@ The "noun_columns" field should contain only the columns that are relevant to th
         
         response = self.llm_manager.invoke(prompt, schema=schema, question=question)
         parsed_response = output_parser.parse(response)
-        return {"parsed_question": parsed_response}
 
-    def get_unique_nouns(self, state: dict) -> dict:
+        state["logs"][log_index]["done"] = True
+        await copilotkit_emit_state(config, state)
+       
+        return { "parsed_question": parsed_response }
+
+    async def get_unique_nouns(self, state: dict, config: RunnableConfig) -> dict:
+
+        await dont_emit_state(config, state)
+
+        log_index = await self.log_message(state, "Find unique nouns in relevant tables and columns.", done=False)
+        await copilotkit_emit_state(config, state)
+
         """Find unique nouns in relevant tables and columns."""
         parsed_question = state['parsed_question']
         
@@ -60,9 +97,18 @@ The "noun_columns" field should contain only the columns that are relevant to th
                 for row in results:
                     unique_nouns.update(str(value) for value in row if value)
 
+        state["logs"][log_index]["done"] = True
+        await copilotkit_emit_state(config, state)
+       
+
         return {"unique_nouns": list(unique_nouns)}
 
-    def generate_sql(self, state: dict) -> dict:
+    async def generate_sql(self, state: dict, config: RunnableConfig) -> dict:
+        await dont_emit_state(config, state)
+
+        log_index = await self.log_message(state, "Generate SQL query based on parsed question and unique nouns.", done=False)
+        await copilotkit_emit_state(config, state)
+        
         """Generate SQL query based on parsed question and unique nouns."""
         question = state['question']
         parsed_question = state['parsed_question']
@@ -119,12 +165,21 @@ Generate SQL query string'''),
 
         response = self.llm_manager.invoke(prompt, schema=schema, question=question, parsed_question=parsed_question, unique_nouns=unique_nouns)
         
+        state["logs"][log_index]["done"] = True
+        await copilotkit_emit_state(config, state)
+       
+
         if response.strip() == "NOT_ENOUGH_INFO":
             return {"sql_query": "NOT_RELEVANT"}
         else:
             return {"sql_query": response}
 
-    def validate_and_fix_sql(self, state: dict) -> dict:
+    async def validate_and_fix_sql(self, state: dict, config: RunnableConfig) -> dict:
+        await dont_emit_state(config, state)
+
+        log_index = await self.log_message(state, "Validate and fix the generated SQL query.", done=False)
+        await copilotkit_emit_state(config, state)
+
         """Validate and fix the generated SQL query."""
         sql_query = state['sql_query']
 
@@ -187,6 +242,10 @@ For example:
         response = self.llm_manager.invoke(prompt, schema=schema, sql_query=sql_query)
         result = output_parser.parse(response)
 
+
+        state["logs"][log_index]["done"] = True
+        await copilotkit_emit_state(config, state)
+       
         if result["valid"] and result["issues"] is None:
             return {"sql_query": sql_query, "sql_valid": True}
         else:
@@ -196,7 +255,13 @@ For example:
                 "sql_issues": result["issues"]
             }
 
-    def execute_sql(self, state: dict) -> dict:
+    async def execute_sql(self, state: dict, config: RunnableConfig) -> dict:
+        await dont_emit_state(config, state)
+
+        log_index = await self.log_message(state, "Execute SQL query and return results.", done=False)
+        await copilotkit_emit_state(config, state)
+
+
         """Execute SQL query and return results."""
         query = state['sql_query']
         uuid = state['uuid']
@@ -204,13 +269,23 @@ For example:
         if query == "NOT_RELEVANT":
             return {"results": "NOT_RELEVANT"}
 
+
+        state["logs"][log_index]["done"] = True
+        await copilotkit_emit_state(config, state)
+    
         try:
             results = self.db_manager.execute_query(uuid, query)
             return {"results": results}
         except Exception as e:
             return {"error": str(e)}
 
-    def format_results(self, state: dict) -> dict:
+    async def format_results(self, state: dict, config: RunnableConfig) -> dict:
+        await dont_emit_state(config, state)
+
+        log_index = await self.log_message(state, "Format query results into a human-readable response.", done=False)
+        await copilotkit_emit_state(config, state)
+
+
         """Format query results into a human-readable response."""
         question = state['question']
         results = state['results']
@@ -224,16 +299,25 @@ For example:
         ])
 
         response = self.llm_manager.invoke(prompt, question=question, results=results)
+
+        state["logs"][log_index]["done"] = True
+        await copilotkit_emit_state(config, state)
+       
         return {"answer": response}
 
-    def choose_visualization(self, state: dict) -> dict:
+    async def choose_visualization(self, state: dict, config: RunnableConfig) -> dict:
+        # await dont_emit_state(config, state)
+
+        log_index = await self.log_message(state, "Choose an appropriate visualization for the data.", done=False)
+        await copilotkit_emit_state(config, state)
+
         """Choose an appropriate visualization for the data."""
         question = state['question']
         results = state['results']
         sql_query = state['sql_query']
 
         if results == "NOT_RELEVANT":
-            return {"visualization": "none", "visualization_reasoning": "No visualization needed for irrelevant questions."}
+            return {"visualization": "none", "visualization_reason": "No visualization needed for irrelevant questions."}
 
         prompt = ChatPromptTemplate.from_messages([
             ("system", '''
@@ -272,4 +356,19 @@ Recommend a visualization:'''),
         visualization = lines[0].split(': ')[1]
         reason = lines[1].split(': ')[1]
 
+        state["logs"][log_index]["done"] = True
+        state["logs"][log_index]["is_error"] = True
+        await copilotkit_emit_state(config, state)
+       
+
         return {"visualization": visualization, "visualization_reason": reason}
+
+    async def log_message(self, state: dict, message: str, done: bool = False) -> None:
+        """Log a message to the state with a done status."""
+        log_index = len(state["logs"])
+        state["logs"] = state.get("logs", [])
+        state["logs"].append({
+            "message": message,
+            "done": done
+        })
+        return log_index  # Return the log index for further use
